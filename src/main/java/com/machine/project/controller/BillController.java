@@ -6,23 +6,20 @@ import com.machine.project.service.BillService;
 import com.machine.project.service.PaymentService;
 import com.machine.project.service.ProductService;
 import com.machine.project.service.UserService;
-import com.machine.project.service.impl.PaymentServiceImpl;
 import com.machine.project.utils.Status;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.machine.project.domain.Product;
 
-import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+@Api
 @RestController
 public class BillController {
 
@@ -41,7 +38,7 @@ public class BillController {
 
 
     @PostMapping(value = "/bills")
-    public ResponseEntity<List<Product>> createNewBill(Principal principal) {
+    public ResponseEntity<List<Product>> createNewBill(@RequestHeader Principal principal) {
         Bill bill = Bill.builder()
                 .date(LocalDate.now().toString())
                 .user(userService.findByUserName(principal.getName()))
@@ -68,8 +65,9 @@ public class BillController {
         return new ResponseEntity<>(payments, HttpStatus.OK);
     }
 
-    @PostMapping(value = "bills/{id}/products")
-    public ResponseEntity<Payment> addProductToBill(@PathVariable("id") Integer idBill, @RequestBody Product product, @RequestBody Integer quantity) {
+    @PostMapping(value = "bills/{id}/products" )
+    public ResponseEntity<Payment> addProductToBill(@PathVariable("id") Integer idBill,
+                                                    @RequestBody Product product, @RequestParam Integer quantity) {
         Optional<Bill> bill = billService.get(idBill);
         Optional<Payment> payment = bill.flatMap(bill1 -> Optional.of(Payment.builder()
                 .bill(bill1)
@@ -82,7 +80,8 @@ public class BillController {
     }
 
 
-    @PostMapping("/bills/{id}/products/{idpr}")
+    @ApiOperation(value = "delete")
+    @DeleteMapping("/bills/{id}/products/{idpr}")
     public ResponseEntity<List<Payment>> deleteProductFromBill(@PathVariable("id") Integer id,
                                                                @PathVariable("idpr") Integer idpr) {
         Optional<Bill> bill = billService.get(id);
@@ -95,13 +94,15 @@ public class BillController {
             return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
     }
 
+    @ApiOperation(value = "close")
     @PutMapping("/bills/{id}")
     public ResponseEntity<Bill> closeBill(@PathVariable("id") Integer idBill) {
         Optional<Bill> bill = billService.get(idBill);
         if (bill.isPresent()) {
             Bill updateBill = bill.get();
             updateBill.setBillStatus(Status.FINISHED);
-            return new ResponseEntity<>(billService.update(updateBill), HttpStatus.OK);
+            //return new ResponseEntity<>(billService.update(updateBill), HttpStatus.OK);
+            return ResponseEntity.ok().body(billService.update(updateBill));
         } else return ResponseEntity.notFound().build();
     }
 }
