@@ -17,50 +17,27 @@ import java.util.Objects;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", unique = true)
-    private int id;
+    @Column(name = "id")
+    private String id;
 
-    @Column(name = "username")
-    private String username;
-
-    @Column(name = "password")
-    private String password;
-
-    @Transient
-    @Column(name = "password_2")
-    private String password_2;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "email")
     private String email;
-
-    @Column(name = "role")
-    private int role;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id &&
-                role == user.role &&
-                Objects.equals(username, user.username) &&
-                Objects.equals(password, user.password) &&
-                Objects.equals(password_2, user.password_2) &&
+        return Objects.equals(id, user.id) &&
+                Objects.equals(name, user.name) &&
                 Objects.equals(email, user.email);
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(id, username, password, password_2, email, role);
-    }
-
-    public User(String username, String password, String password_2, String email, int role) {
-        this.username = username;
-        this.password = password;
-        this.password_2 = password_2;
-        this.email = email;
-        this.role = role;
+        return Objects.hash(id, name, email);
     }
 }

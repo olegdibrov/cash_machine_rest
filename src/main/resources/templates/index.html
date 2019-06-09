@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <meta name="description" content="spring-boot thymeleaf | home ">
+    <div th:replace="fragments/header :: header-css"></div>
+</head>
+<body>
+
+<div>
+    <h1>Log in in Cash Machine App</h1>
+    <a href="/login">Google</a>
+    <a th:if="${user}" th:href="@{/home}" >home page</a>
+</div>
+</body>
+</html>

@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean delete(int id) {
+    public Boolean delete(String id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
             return true;
@@ -36,19 +36,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(int id) {
+    public User findById(String id) {
         return userRepository.findById(id).get();
     }
 
-    @Override
-    public User findByUserName(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
 
     @Override
     public Collection<User> findAll() {

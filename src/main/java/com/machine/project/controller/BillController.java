@@ -2,6 +2,7 @@ package com.machine.project.controller;
 
 import com.machine.project.domain.Bill;
 import com.machine.project.domain.Payment;
+import com.machine.project.domain.User;
 import com.machine.project.service.BillService;
 import com.machine.project.service.PaymentService;
 import com.machine.project.service.ProductService;
@@ -12,6 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.machine.project.domain.Product;
 
@@ -38,10 +40,10 @@ public class BillController {
 
 
     @PostMapping(value = "/bills")
-    public ResponseEntity<List<Product>> createNewBill(@RequestHeader Principal principal) {
+    public ResponseEntity<List<Product>> createNewBill(@AuthenticationPrincipal User user) {
         Bill bill = Bill.builder()
                 .date(LocalDate.now().toString())
-                .user(userService.findByUserName(principal.getName()))
+                .user(userService.findById(user.getId()))
                 .billStatus(Status.CREATED)
                 .build();
         billService.save(bill);
@@ -101,7 +103,6 @@ public class BillController {
         if (bill.isPresent()) {
             Bill updateBill = bill.get();
             updateBill.setBillStatus(Status.FINISHED);
-            //return new ResponseEntity<>(billService.update(updateBill), HttpStatus.OK);
             return ResponseEntity.ok().body(billService.update(updateBill));
         } else return ResponseEntity.notFound().build();
     }
