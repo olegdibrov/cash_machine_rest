@@ -30,6 +30,9 @@ public class Payment {
     @Column(name = "quantity")
     private Integer quantity;
 
+    @Transient
+    private Currency currency;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -38,14 +41,13 @@ public class Payment {
         return Objects.equals(idPayment, payment.idPayment) &&
                 Objects.equals(bill, payment.bill) &&
                 Objects.equals(product, payment.product) &&
-                Objects.equals(quantity, payment.quantity);
+                Objects.equals(quantity, payment.quantity) &&
+                Objects.equals(currency, payment.currency);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idPayment, bill, product, quantity);
+        return Objects.hash(idPayment, bill, product, quantity, currency);
     }
-
-
 }
 

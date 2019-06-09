@@ -1,5 +1,6 @@
 package com.machine.project.controller;
 
+import com.machine.project.business.CurrencyConverterBusiness;
 import com.machine.project.domain.Bill;
 import com.machine.project.domain.Payment;
 import com.machine.project.domain.User;
@@ -7,17 +8,18 @@ import com.machine.project.service.BillService;
 import com.machine.project.service.PaymentService;
 import com.machine.project.service.ProductService;
 import com.machine.project.service.UserService;
+import com.machine.project.utils.CurrencyEnum;
 import com.machine.project.utils.Status;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.machine.project.domain.Product;
 
-import java.security.Principal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -37,6 +39,9 @@ public class BillController {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private CurrencyConverterBusiness currencyConverterBusiness;
 
 
     @PostMapping(value = "/bills")
@@ -70,12 +75,16 @@ public class BillController {
     @PostMapping(value = "bills/{id}/products" )
     public ResponseEntity<Payment> addProductToBill(@PathVariable("id") Integer idBill,
                                                     @RequestBody Product product, @RequestParam Integer quantity) {
+
         Optional<Bill> bill = billService.get(idBill);
-        Optional<Payment> payment = bill.flatMap(bill1 -> Optional.of(Payment.builder()
-                .bill(bill1)
-                .product(product)
-                .quantity(quantity)
-                .build()));
+        Optional<Payment> payment = bill.flatMap(bill1 -> {
+                return Optional.of(Payment.builder()
+                        .bill(bill1)
+                        .product(product)
+                        .quantity(quantity)
+                        .currency(currencyConverterBusiness.getCurrency(CurrencyEnum.USD, CurrencyEnum.UAH, product.getCost()))
+                        .build());
+        });
         return payment
                 .map(payment1 -> new ResponseEntity<>(paymentService.addProductToBill(payment1), HttpStatus.OK))
                 .orElse(ResponseEntity.notFound().build());
